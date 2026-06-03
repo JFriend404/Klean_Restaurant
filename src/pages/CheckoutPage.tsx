@@ -23,35 +23,34 @@ export function CheckoutPage() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!profile) return
-    if (items.length === 0) {
-      toast.error('Your cart is empty')
-      return
-    }
+    if (items.length === 0) { toast.error('Your cart is empty'); return }
 
     setLoading(true)
     try {
-      // Create order
+      const orderPayload = {
+        user_id: profile.id,
+        total_amount: totalPrice(),
+        delivery_name: form.delivery_name,
+        delivery_phone: form.delivery_phone,
+        delivery_address: form.delivery_address,
+        delivery_note: form.delivery_note || null,
+      }
+
       const { data: order, error: orderError } = await supabase
         .from('orders')
-        .insert({
-          user_id: profile.id,
-          total_amount: totalPrice(),
-          delivery_name: form.delivery_name,
-          delivery_phone: form.delivery_phone,
-          delivery_address: form.delivery_address,
-          delivery_note: form.delivery_note || null,
-        })
+        .insert([orderPayload])
         .select()
         .single()
 
       if (orderError) throw orderError
 
-      // Create order items
+      const orderData = order as { id: string }
+
       const orderItems = items.map((item) => ({
-        order_id: order.id,
+        order_id: orderData.id,
         food_id: item.food.id,
         food_name: item.food.name,
         food_price: item.food.price,

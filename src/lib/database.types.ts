@@ -6,6 +6,9 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+export type OrderStatusEnum = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+export type UserRoleEnum = 'customer' | 'admin'
+
 export interface Database {
   public: {
     Tables: {
@@ -17,7 +20,7 @@ export interface Database {
           avatar_url: string | null
           phone: string | null
           address: string | null
-          role: 'customer' | 'admin'
+          role: UserRoleEnum
           created_at: string
           updated_at: string
         }
@@ -28,16 +31,18 @@ export interface Database {
           avatar_url?: string | null
           phone?: string | null
           address?: string | null
-          role?: 'customer' | 'admin'
+          role?: UserRoleEnum
           created_at?: string
           updated_at?: string
         }
         Update: {
+          id?: string
+          email?: string
           full_name?: string | null
           avatar_url?: string | null
           phone?: string | null
           address?: string | null
-          role?: 'customer' | 'admin'
+          role?: UserRoleEnum
           updated_at?: string
         }
       }
@@ -54,8 +59,10 @@ export interface Database {
           name: string
           slug: string
           icon?: string | null
+          created_at?: string
         }
         Update: {
+          id?: string
           name?: string
           slug?: string
           icon?: string | null
@@ -81,8 +88,11 @@ export interface Database {
           price: number
           image_url?: string | null
           is_available?: boolean
+          created_at?: string
+          updated_at?: string
         }
         Update: {
+          id?: string
           category_id?: string | null
           name?: string
           description?: string | null
@@ -96,7 +106,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string | null
-          status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+          status: OrderStatusEnum
           total_amount: number
           delivery_name: string
           delivery_phone: string
@@ -108,15 +118,24 @@ export interface Database {
         Insert: {
           id?: string
           user_id?: string | null
-          status?: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+          status?: OrderStatusEnum
           total_amount: number
           delivery_name: string
           delivery_phone: string
           delivery_address: string
           delivery_note?: string | null
+          created_at?: string
+          updated_at?: string
         }
         Update: {
-          status?: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+          id?: string
+          user_id?: string | null
+          status?: OrderStatusEnum
+          total_amount?: number
+          delivery_name?: string
+          delivery_phone?: string
+          delivery_address?: string
+          delivery_note?: string | null
           updated_at?: string
         }
       }
@@ -139,7 +158,15 @@ export interface Database {
           quantity: number
           subtotal: number
         }
-        Update: Record<string, never>
+        Update: {
+          id?: string
+          order_id?: string
+          food_id?: string | null
+          food_name?: string
+          food_price?: number
+          quantity?: number
+          subtotal?: number
+        }
       }
     }
     Views: Record<string, never>
@@ -150,8 +177,8 @@ export interface Database {
       }
     }
     Enums: {
-      user_role: 'customer' | 'admin'
-      order_status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+      user_role: UserRoleEnum
+      order_status: OrderStatusEnum
     }
   }
 }

@@ -53,50 +53,53 @@ export function FoodFormModal({ food, onClose, onSaved }: Props) {
     return data.publicUrl + '?t=' + Date.now()
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!form.name || !form.price) return
-    setSaving(true)
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  if (!form.name || !form.price) return
+  setSaving(true)
 
-    try {
-      if (isEdit) {
-        const imageUrl = await uploadImage(food.id)
-        const { error } = await supabase
-          .from('foods')
-          .update({
-            name: form.name,
-            description: form.description || null,
-            price: parseFloat(form.price),
-            category_id: form.category_id || null,
-            is_available: form.is_available,
-            ...(imageUrl ? { image_url: imageUrl } : {}),
-          })
-          .eq('id', food.id)
-        if (error) throw error
-        toast.success('Item updated!')
-      } else {
-        // Create a temp ID for image upload
-        const tempId = crypto.randomUUID()
-        const imageUrl = imageFile ? await uploadImage(tempId) : null
-        const { error } = await supabase.from('foods').insert({
-          name: form.name,
-          description: form.description || null,
-          price: parseFloat(form.price),
-          category_id: form.category_id || null,
-          is_available: form.is_available,
-          image_url: imageUrl,
-        })
-        if (error) throw error
-        toast.success('Item created!')
+  try {
+    if (isEdit) {
+      const imageUrl = await uploadImage(food.id)
+      const payload = {
+        name: form.name,
+        description: form.description || null,
+        price: parseFloat(form.price),
+        category_id: form.category_id || null,
+        is_available: form.is_available,
+        ...(imageUrl ? { image_url: imageUrl } : {}),
       }
-      onSaved()
-    } catch (err) {
-      toast.error('Something went wrong')
-      console.error(err)
-    } finally {
-      setSaving(false)
+      const { error } = await supabase
+        .from('foods')
+        .update(payload)
+        .eq('id', food.id)
+      if (error) throw error
+      toast.success('Item updated!')
+    } else {
+      const tempId = crypto.randomUUID()
+      const imageUrl = imageFile ? await uploadImage(tempId) : null
+      const payload = {
+        name: form.name,
+        description: form.description || null,
+        price: parseFloat(form.price),
+        category_id: form.category_id || null,
+        is_available: form.is_available,
+        image_url: imageUrl,
+      }
+      const { error } = await supabase
+        .from('foods')
+        .insert([payload])
+      if (error) throw error
+      toast.success('Item created!')
     }
+    onSaved()
+  } catch (err) {
+    toast.error('Something went wrong')
+    console.error(err)
+  } finally {
+    setSaving(false)
   }
+}
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">

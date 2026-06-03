@@ -27,20 +27,20 @@ export function AdminOrdersTab() {
   useEffect(() => { fetchOrders() }, [])
 
   const handleStatusChange = async (orderId: string, status: OrderStatus) => {
-    const { error } = await supabase
-      .from('orders')
-      .update({ status })
-      .eq('id', orderId)
+  const { error } = await supabase
+    .from('orders')
+    .update({ status } as { status: OrderStatus })
+    .eq('id', orderId)
 
-    if (error) {
-      toast.error('Failed to update status')
-    } else {
-      toast.success('Order status updated')
-      setOrders((prev) =>
-        prev.map((o) => (o.id === orderId ? { ...o, status } : o))
-      )
-    }
+  if (error) {
+    toast.error('Failed to update status')
+  } else {
+    toast.success('Order status updated')
+    setOrders((prev) =>
+      prev.map((o) => (o.id === orderId ? { ...o, status } : o))
+    )
   }
+}
 
   if (loading) return <PageLoader />
 

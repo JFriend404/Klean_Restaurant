@@ -28,21 +28,21 @@ export function ProfilePage() {
   }
 
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
-    const { error } = await supabase
-      .from('profiles')
-      .update({ ...form })
-      .eq('id', profile.id)
+  e.preventDefault()
+  setSaving(true)
+  const { error } = await supabase
+    .from('profiles')
+    .update({ full_name: form.full_name, phone: form.phone, address: form.address })
+    .eq('id', profile.id)
 
-    if (error) {
-      toast.error('Failed to update profile')
-    } else {
-      await fetchProfile(profile.id)
-      toast.success('Profile updated!')
-    }
-    setSaving(false)
+  if (error) {
+    toast.error('Failed to update profile')
+  } else {
+    await fetchProfile(profile.id)
+    toast.success('Profile updated!')
   }
+  setSaving(false)
+}
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -66,10 +66,9 @@ export function ProfilePage() {
     const avatarUrl = data.publicUrl + '?t=' + Date.now()
 
     await supabase
-      .from('profiles')
-      .update({ avatar_url: avatarUrl })
-      .eq('id', profile.id)
-
+  .from('profiles')
+  .update({ avatar_url: avatarUrl })
+  .eq('id', profile.id)
     await fetchProfile(profile.id)
     toast.success('Avatar updated!')
     setUploading(false)

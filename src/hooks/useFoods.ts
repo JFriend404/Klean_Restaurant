@@ -17,34 +17,44 @@ export function useFoods({ categorySlug, search }: UseFoodsOptions = {}) {
       setLoading(true)
       setError(null)
 
-      let query = supabase
-        .from('foods')
-        .select('*, category:categories(*)')
-        .eq('is_available', true)
-        .order('created_at', { ascending: false })
+      try {
+        let categoryId: string | null = null
 
-      if (categorySlug && categorySlug !== 'all') {
-        const { data: cat } = await supabase
-          .from('categories')
-          .select('id')
-          .eq('slug', categorySlug)
-          .single()
-        if (cat) {
-          query = query.eq('category_id', cat.id)
+        if (categorySlug && categorySlug !== 'all') {
+          const { data: cat } = await supabase
+            .from('categories')
+            .select('id')
+            .eq('slug', categorySlug)
+            .single()
+          categoryId = (cat as { id: string } | null)?.id ?? null
         }
+
+        let query = supabase
+          .from('foods')
+          .select('*, category:categories(*)')
+          .eq('is_available', true)
+          .order('created_at', { ascending: false })
+
+        if (categoryId) {
+          query = query.eq('category_id', categoryId)
+        }
+
+        if (search) {
+          query = query.ilike('name', `%${search}%`)
+        }
+
+        const { data, error: fetchError } = await query
+
+        if (fetchError) {
+          setError(fetchError.message)
+        } else {
+          setFoods((data as unknown as Food[]) || [])
+        }
+      } catch (err) {
+        setError('Failed to fetch foods')
+        console.error(err)
       }
 
-      if (search) {
-        query = query.ilike('name', `%${search}%`)
-      }
-
-      const { data, error: fetchError } = await query
-
-      if (fetchError) {
-        setError(fetchError.message)
-      } else {
-        setFoods((data as Food[]) || [])
-      }
       setLoading(false)
     }
 
