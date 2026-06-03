@@ -15,7 +15,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   profile: null,
-  loading: true,
+  loading: false,
   initialized: false,
 
   setProfile: (profile) => set({ profile }),
@@ -23,17 +23,21 @@ export const useAuthStore = create<AuthState>((set) => ({
   setInitialized: (initialized) => set({ initialized }),
 
   fetchProfile: async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-    if (error) {
-      console.error('Error fetching profile:', error)
-      return
+      if (error) {
+        console.error('Error fetching profile:', error)
+        return
+      }
+      set({ profile: data as Profile })
+    } catch (err) {
+      console.error('fetchProfile error:', err)
     }
-    set({ profile: data as Profile })
   },
 
   signOut: async () => {
