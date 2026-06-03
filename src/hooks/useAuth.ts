@@ -7,18 +7,31 @@ export function useAuth() {
     useAuthStore()
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        await fetchProfile(session.user.id)
-      }
-      setLoading(false)
-      setInitialized(true)
-    })
+    let mounted = true
 
-    // Listen for auth changes
+    const init = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (mounted) {
+          if (session?.user) {
+            await fetchProfile(session.user.id)
+          }
+          setLoading(false)
+          setInitialized(true)
+        }
+      } catch {
+        if (mounted) {
+          setLoading(false)
+          setInitialized(true)
+        }
+      }
+    }
+
+    init()
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return
         if (event === 'SIGNED_IN' && session?.user) {
           await fetchProfile(session.user.id)
         }
@@ -26,10 +39,14 @@ export function useAuth() {
           setProfile(null)
         }
         setLoading(false)
+        setInitialized(true)
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [fetchProfile, setLoading, setInitialized, setProfile])
 
   return {
