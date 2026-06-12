@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useFoods } from '@/hooks/useFoods'
 import { useCategories } from '@/hooks/useCategories'
 import { FoodCard } from '@/components/ui/FoodCard'
@@ -21,13 +21,15 @@ export function MenuPage() {
     if (s) setSearch(s)
   }, [searchParams])
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (search.trim()) {
-      setSearchParams({ search: search.trim() })
-    } else {
-      setSearchParams({})
-    }
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearch(value)
+    setSearchParams(value.trim() ? { search: value.trim() } : {})
+  }
+
+  const handleClearSearch = () => {
+    setSearch('')
+    setSearchParams({})
   }
 
   const handleCategoryChange = (slug: string) => {
@@ -44,16 +46,25 @@ export function MenuPage() {
       </div>
 
       {/* Search bar */}
-      <form onSubmit={handleSearch} className="relative">
+      <div className="relative">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
         <input
           type="text"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="search food here....."
-          className="klean-input pl-9"
+          onChange={handleSearchChange}
+          placeholder="Search food here..."
+          className="klean-input pl-9 pr-9"
         />
-      </form>
+        {search && (
+          <button
+            type="button"
+            onClick={handleClearSearch}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
 
       {/* Category tabs */}
       <CategoryTabs

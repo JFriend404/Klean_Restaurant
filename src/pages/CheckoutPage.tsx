@@ -87,8 +87,8 @@ export function CheckoutPage() {
 
             {[
               { name: 'delivery_name', label: 'Full Name', type: 'text', placeholder: 'John Doe' },
-              { name: 'delivery_phone', label: 'Phone Number', type: 'tel', placeholder: '+1 234 567 890' },
-              { name: 'delivery_address', label: 'Delivery Address', type: 'text', placeholder: '123 Main St, City' },
+              { name: 'delivery_phone', label: 'Phone Number', type: 'tel', placeholder: '+855 78 389 563' },
+              { name: 'delivery_address', label: 'Delivery Address', type: 'text', placeholder: '1E 21K5 Phnom Penh' },
             ].map(({ name, label, type, placeholder }) => (
               <div key={name}>
                 <label className="text-gray-400 text-sm mb-1 block">{label}</label>
